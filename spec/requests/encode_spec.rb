@@ -53,16 +53,13 @@ RSpec.describe "Encodes", type: :request do
 end
 
 private
-def convert_params_to_sjis(hash)
-  converted_params = {}
-  hash.each do | k, v |
-    if v.is_a? Hash
-      converted_params[k] = convert_params_to_sjis(v)
-    elsif v.is_a? Array
-      converted_params[k] = v.map { convert_params_to_sjis(_1) }
-    else
-      converted_params[k] = v.encode(Encoding::SJIS)
-    end
+def convert_params_to_sjis(value)
+  case value
+  when Hash
+    value.each_with_object({}) {|(k, v), hash| hash[k] = convert_params_to_sjis(v) }
+  when Array
+    value.map { convert_params_to_sjis(_1) }
+  else
+    value.encode(Encoding::SJIS)
   end
-  converted_params
 end
